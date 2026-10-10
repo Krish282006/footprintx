@@ -1,0 +1,33 @@
+name: CI
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: footprintx
+          POSTGRES_PASSWORD: footprintx_dev_password
+          POSTGRES_DB: footprintx_dev
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U footprintx" --health-interval 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Create test databases
+        run: PGPASSWORD=footprintx_dev_password psql -h localhost -U footprintx -d footprintx_dev -f scripts/init-test-dbs.sql
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm audit --omit=dev
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - run: npm run test:extension:e2e

@@ -90,8 +90,9 @@ export function extensionApiRouter(ctx: AppContext) {
     res.json({ ok: true });
   });
 
-  r.get('/check', requirePremium, checkLimit, async (req, res) => {
-    const domain = parse(z.string().min(1).max(253), req.query.domain);
+  // POST keeps visited hostnames out of URLs (and therefore out of proxy/access logs).
+  r.post('/check', requirePremium, checkLimit, async (req, res) => {
+    const { domain } = parse(z.object({ domain: z.string().min(1).max(253) }), req.body);
     const result = await ctx.reputation.check(domain);
     if ('error' in result) {
       return res.json({ result: { domain, status: 'grey', summary: 'Not checked', reasons: [result.error === 'local_or_private' ? 'Local and private addresses are not checked.' : 'This address cannot be checked.'], nextSteps: [], providers: [], confidence: 'none' } });

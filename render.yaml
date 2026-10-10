@@ -1,0 +1,79 @@
+# Render Blueprint for the FootprintX API (not deployed by this build).
+# The database is Neon PostgreSQL: paste its connection string into DATABASE_URL.
+services:
+  - type: web
+    name: footprintx-api
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build -w apps/api
+    # Migrations run automatically at startup (advisory-locked, idempotent).
+    startCommand: npm run start -w apps/api
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_SSL
+        value: "true"
+      - key: WEB_ORIGIN
+        sync: false # e.g. https://footprintx.vercel.app
+      - key: API_PUBLIC_URL
+        sync: false # the WEB origin when using the Vercel /api rewrite (recommended)
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: COOKIE_SAMESITE
+        value: lax
+      - key: TRUST_PROXY
+        value: "true"
+      - key: TOKEN_ENCRYPTION_KEY
+        generateValue: true # 256-bit base64 value
+      - key: EMAIL_PROVIDER
+        value: none # set to smtp and add SMTP_* to enable email
+      - key: CONTACT_RECIPIENT
+        sync: false
+      - key: BREACH_SOURCE
+        value: hibp
+      - key: THREAT_PROVIDERS
+        value: feed,heuristics
+      - key: THREAT_FEED_URLS
+        value: https://raw.githubusercontent.com/mitchellkrogza/Phishing.Database/master/phishing-domains-ACTIVE.txt
+      - key: ENABLE_DEV_FIXTURES
+        value: "false"
+      - key: ENABLE_DEV_ENTITLEMENTS
+        value: "false"
+
+  # Optional scheduled jobs. Render cron jobs are a paid feature; see docs/DEPLOYMENT.md
+  # for free alternatives. The API also refreshes threat feeds hourly in-process.
+  - type: cron
+    name: footprintx-notifications
+    runtime: node
+    plan: starter
+    schedule: "47 8 * * *"
+    buildCommand: npm ci --include=dev && npm run build -w apps/api
+    startCommand: npm run jobs:notify:prod -w apps/api
+    envVars: # must match the web service values
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_SSL
+        value: "true"
+      - key: WEB_ORIGIN
+        sync: false
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: TOKEN_ENCRYPTION_KEY
+        sync: false
+      - key: EMAIL_PROVIDER
+        value: smtp
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: EMAIL_FROM
+        sync: false

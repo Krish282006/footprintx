@@ -98,8 +98,11 @@ export async function checkHost(opts: {
   if (!online) return greyResult(host, 'offline');
   let res: Response;
   try {
-    res = await fetchImpl(`${apiBase}/api/ext/check?domain=${encodeURIComponent(host)}`, {
-      headers: { authorization: `Bearer ${token}`, accept: 'application/json' },
+    // POST so the hostname never appears in a URL (and therefore not in access logs).
+    res = await fetchImpl(`${apiBase}/api/ext/check`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${token}`, accept: 'application/json', 'content-type': 'application/json' },
+      body: JSON.stringify({ domain: host }),
       signal: AbortSignal.timeout(timeoutMs),
       credentials: 'omit',
       cache: 'no-store',

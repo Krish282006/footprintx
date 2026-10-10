@@ -24,13 +24,15 @@ describe('checkHost status mapping', () => {
     const calls: string[] = [];
     const fetchImpl = (async (url: string, init: RequestInit) => {
       calls.push(url);
+      expect(init.method).toBe('POST');
+      expect(JSON.parse(String(init.body))).toEqual({ domain: 'site.example' });
       expect((init.headers as Record<string, string>).authorization).toMatch(/^Bearer /);
       expect(init.credentials).toBe('omit');
       return json({ result: { status: 'red', summary: 'Known malicious site', reasons: ['Listed'], nextSteps: ['Leave'] } });
     }) as typeof fetch;
     const r = await checkHost({ ...base, fetchImpl });
     expect(r).toMatchObject({ status: 'red', reasons: ['Listed'], source: 'server' });
-    expect(calls).toEqual(['https://api.example/api/ext/check?domain=site.example']);
+    expect(calls).toEqual(['https://api.example/api/ext/check']);
   });
   it('green only when the server says green', async () => {
     expect((await checkHost({ ...base, fetchImpl: (async () => json({ result: { status: 'green', summary: '', reasons: [], nextSteps: [] } })) as typeof fetch })).status).toBe('green');

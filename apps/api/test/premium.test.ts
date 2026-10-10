@@ -21,7 +21,7 @@ describe('Free / Premium enforcement', () => {
     const auth = { Authorization: `Bearer ${token}` };
     const status = await request(app).get('/api/ext/status').set(auth);
     expect(status.body).toMatchObject({ plan: 'free', protectionAvailable: false });
-    const check = await request(app).get('/api/ext/check?domain=malicious.fixture.test&plan=premium').set(auth).set('X-Plan', 'premium');
+    const check = await request(app).post('/api/ext/check').set(auth).send({ domain: 'malicious.fixture.test', plan: 'premium' }).set('X-Plan', 'premium');
     expect(check.status).toBe(403);
     expect(check.body.error).toBe('premium_required');
     expect((await request(app).put('/api/ext/preferences').set(auth).send({ eventSync: true, plan: 'premium' })).status).toBe(403);
@@ -47,8 +47,8 @@ describe('Free / Premium enforcement', () => {
     expect(up.body.note).toMatch(/No payment/);
     const token = await linkExtension(app, c);
     const auth = { Authorization: `Bearer ${token}` };
-    expect((await request(app).get('/api/ext/check?domain=malicious.fixture.test').set(auth)).body.result.status).toBe('red');
-    expect((await request(app).get('/api/ext/check?domain=localhost').set(auth)).body.result.status).toBe('grey');
+    expect((await request(app).post('/api/ext/check').set(auth).send({ domain: 'malicious.fixture.test' })).body.result.status).toBe('red');
+    expect((await request(app).post('/api/ext/check').set(auth).send({ domain: 'localhost' })).body.result.status).toBe('grey');
     // Free features still work for Premium.
     await connectFixture(c, ctx);
     for (const path of ['/api/dashboard', '/api/accounts', '/api/remediation', '/api/alerts', '/api/dasi/history', '/api/notifications/preferences', '/api/reports/security.xlsx', '/api/privacy/export.xlsx']) {
@@ -63,9 +63,9 @@ describe('Free / Premium enforcement', () => {
     await c.post('/api/dev/plan', { plan: 'premium' });
     const token = await linkExtension(app, c);
     const auth = { Authorization: `Bearer ${token}` };
-    expect((await request(app).get('/api/ext/check?domain=safe.fixture.test').set(auth)).status).toBe(200);
+    expect((await request(app).post('/api/ext/check').set(auth).send({ domain: 'safe.fixture.test' })).status).toBe(200);
     await c.post('/api/dev/plan', { plan: 'free' });
-    expect((await request(app).get('/api/ext/check?domain=safe.fixture.test').set(auth)).status).toBe(403);
+    expect((await request(app).post('/api/ext/check').set(auth).send({ domain: 'safe.fixture.test' })).status).toBe(403);
   });
 
   it('security-event sync requires explicit opt-in and accepts only warning events', async () => {

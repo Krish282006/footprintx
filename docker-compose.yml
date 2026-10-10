@@ -1,0 +1,20 @@
+# Local PostgreSQL for development (alternative to a native install).
+#   docker compose up -d
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: footprintx
+      POSTGRES_PASSWORD: footprintx_dev_password
+      POSTGRES_DB: footprintx_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - footprintx-pg:/var/lib/postgresql/data
+      - ./scripts/init-test-dbs.sql:/docker-entrypoint-initdb.d/init-test-dbs.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U footprintx"]
+      interval: 5s
+      retries: 10
+volumes:
+  footprintx-pg:
