@@ -1,0 +1,16 @@
+node_modules/
+dist/
+build/
+coverage/
+*.log
+.env
+.env.*
+!.env.example
+apps/extension/dist/
+apps/extension/packages/
+apps/web/test-results/
+apps/web/playwright-report/
+apps/extension/test-results/
+.DS_Store
+*.xlsx
+!docs/**/*.xlsx

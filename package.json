@@ -1,0 +1,29 @@
+{
+  "name": "footprintx",
+  "private": true,
+  "version": "1.0.0",
+  "description": "FootprintX — Secure Your Digital Past. Protect Your Online Future.",
+  "workspaces": [
+    "apps/api",
+    "apps/web",
+    "apps/extension"
+  ],
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "build": "npm run build -w apps/api && npm run build -w apps/web && npm run build -w apps/extension",
+    "typecheck": "npm run typecheck -w apps/api && npm run typecheck -w apps/web && npm run typecheck -w apps/extension",
+    "test": "npm run test -w apps/api && npm run test -w apps/web && npm run test -w apps/extension",
+    "test:e2e": "npm run test:e2e -w apps/web",
+    "test:extension:e2e": "npm run test:e2e -w apps/extension",
+    "db:migrate": "npm run db:migrate -w apps/api",
+    "db:seed": "npm run db:seed -w apps/api",
+    "dev:api": "npm run dev -w apps/api",
+    "dev:web": "npm run dev -w apps/web",
+    "audit:deps": "npm audit --omit=dev"
+  },
+  "overrides": {
+    "uuid": "^11.1.1"
+  }
+}
