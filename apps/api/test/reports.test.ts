@@ -15,7 +15,8 @@ const binary = (c: Client, path: string) =>
 
 async function open(buf: Buffer) {
   const wb = new ExcelJS.Workbook();
-  await wb.xlsx.load(buf);
+  // ExcelJS's typings predate generic Buffer; pass an exact ArrayBuffer copy.
+  await wb.xlsx.load(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer);
   return wb;
 }
 

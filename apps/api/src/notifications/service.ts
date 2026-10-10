@@ -68,8 +68,10 @@ export async function notifyNewAlerts(config: Config, db: Db, mailer: Mailer, al
  *  - remediation reminders: open items in progress/recommended for 7+ days, at most weekly per item;
  *  - weekly summary: only when the user's DASI or open items changed since the last summary.
  */
-export async function runNotificationJob(config: Config, db: Db, mailer: Mailer, now = new Date()) {
-  const stats = { reminders: 0, summaries: 0, skipped: 0 };
+export type JobStats = { reminders: number; summaries: number; skipped: number; note?: string };
+
+export async function runNotificationJob(config: Config, db: Db, mailer: Mailer, now = new Date()): Promise<JobStats> {
+  const stats: JobStats = { reminders: 0, summaries: 0, skipped: 0 };
   if (!mailer.isConfigured()) return { ...stats, note: 'Email delivery not configured; no emails sent.' };
   const users = await db.query<{ id: string; email: string } & Prefs>(
     `SELECT u.id, u.email, p.* FROM users u JOIN notification_preferences p ON p.user_id = u.id
