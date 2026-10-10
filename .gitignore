@@ -14,3 +14,4 @@ apps/extension/test-results/
 .DS_Store
 *.xlsx
 !docs/**/*.xlsx
+apps/extension/test-results/

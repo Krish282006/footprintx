@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Warning: known malicious site — FootprintX</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body class="warning">
+    <h1>Warning: known malicious site</h1>
+    <p>FootprintX stopped this page from loading.</p>
+    <p class="host" id="host"></p>
+    <h2>Why</h2>
+    <ul id="reasons"></ul>
+    <h2>What to do</h2>
+    <ul id="steps"></ul>
+    <div class="actions">
+      <button id="back" class="primary" type="button">Go back to safety</button>
+      <button id="proceed" type="button">Continue anyway (not recommended)</button>
+    </div>
+    <p class="muted">FootprintX checks configured threat sources only and may occasionally be wrong. Only continue if you are sure the site is genuine.</p>
+    <script type="module" src="warning.js"></script>
+  </body>
+</html>

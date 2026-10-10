@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>FootprintX</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body class="popup">
+    <h1><img src="icons/icon32.png" alt="" width="20" height="20" /> FootprintX</h1>
+    <div id="message" class="notice" role="status" hidden></div>
+
+    <section id="unlinked" hidden>
+      <p>Link this browser to your FootprintX account to turn on protection.</p>
+      <ol class="muted">
+        <li>Open <a data-web="/extension" target="_blank" rel="noopener">FootprintX → Extension</a>.</li>
+        <li>Create a link code and enter it below.</li>
+      </ol>
+      <form id="link-form">
+        <label for="link-code">Link code</label>
+        <div class="row">
+          <input id="link-code" type="text" autocomplete="off" placeholder="ABCDE-12345" maxlength="11" required />
+          <button id="link-btn" class="primary" type="submit">Link</button>
+        </div>
+      </form>
+      <p class="muted">The extension sends only the hostname of sites you visit — never full addresses, page content, forms, passwords or cookies.</p>
+    </section>
+
+    <section id="linked" hidden>
+      <div class="row muted"><span id="account-email"></span><span id="account-plan" class="plan"></span></div>
+      <p id="premium-note" class="notice info" hidden>Automatic protection requires Premium. <a data-web="/plan" target="_blank" rel="noopener">See plans</a></p>
+
+      <h2>This site</h2>
+      <div id="site" class="site grey" aria-live="polite">
+        <strong id="site-status">Not checked</strong>
+        <div id="site-host" class="muted"></div>
+        <ul id="site-reasons"></ul>
+        <ul id="site-steps"></ul>
+        <div id="site-meta" class="muted"></div>
+      </div>
+
+      <h2>Settings</h2>
+      <label class="toggle"><input id="opt-protection" type="checkbox" /> <span>Check sites automatically</span></label>
+      <label class="toggle"><input id="opt-block" type="checkbox" /> <span>Show a warning page before known-malicious sites</span></label>
+      <label class="toggle"><input id="opt-sync" type="checkbox" /> <span>Sync warning events to my account (opt-in; normal browsing is never sent)</span></label>
+      <div class="row">
+        <button id="clear-cache" type="button">Clear saved results</button>
+        <button id="unlink" type="button">Unlink</button>
+      </div>
+      <p class="muted">FootprintX checks configured threat sources only. It is not antivirus software and cannot guarantee a site is safe.</p>
+    </section>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

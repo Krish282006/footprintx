@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "FootprintX Protection",
+  "short_name": "FootprintX",
+  "version": "__VERSION__",
+  "description": "Warns about known-malicious and suspicious websites using your FootprintX Premium account. Sends only the hostname of sites you visit.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "FootprintX",
+    "default_icon": { "16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png" }
+  },
+  "icons": { "16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png", "128": "icons/icon128.png" },
+  "background": { "service_worker": "background.js", "type": "module" },
+  "permissions": ["storage", "webNavigation"],
+  "host_permissions": ["__API_ORIGIN__/*"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
+  },
+  "minimum_chrome_version": "116"
+}
