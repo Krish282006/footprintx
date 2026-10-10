@@ -242,3 +242,39 @@ describe('Gmail OAuth integration (stubbed provider endpoints)', () => {
     expect((await pool().query('SELECT status FROM email_connections')).rows[0].status).toBe('reauth_required');
   });
 });
+
+describe('Microsoft Graph integration (stubbed provider endpoints)', () => {
+  it('uses Mail.ReadBasic, follows pagination on the Graph host only, and reports revocation as unsupported', async () => {
+    const f = stubFetch([
+      [/stub-login\.test\/common\/oauth2\/v2\.0\/token/, () => json({ access_token: 'ms-at', refresh_token: 'ms-rt', expires_in: 3600 })],
+      [/stub-graph\.test\/v1\.0\/me\?/, () => json({ mail: null, userPrincipalName: 'Someone@Outlook.com' })],
+      [/stub-graph\.test\/v1\.0\/me\/messages/, (u) =>
+        u.searchParams.get('$skiptoken')
+          ? json({ value: [{ id: 'g2', subject: 'Your receipt from Spotify', receivedDateTime: '2025-02-01T00:00:00Z', from: { emailAddress: { name: 'Spotify', address: 'no-reply@spotify.com' } } }] })
+          : json({
+              value: [{ id: 'g1', subject: 'Welcome to GitHub', receivedDateTime: '2024-02-01T00:00:00Z', from: { emailAddress: { name: 'GitHub', address: 'noreply@github.com' } } }],
+              '@odata.nextLink': 'https://stub-graph.test/v1.0/me/messages?$skiptoken=abc',
+            })],
+    ]);
+    const { app, ctx } = makeApp(
+      { MICROSOFT_CLIENT_ID: 'mid', MICROSOFT_CLIENT_SECRET: 'msecret' },
+      { fetchImpl: f.impl, endpoints: { microsoftAuthority: 'https://stub-login.test/common', graphApi: 'https://stub-graph.test/v1.0' } },
+    );
+    const c = await signedIn(app, 'ms1@example.com');
+    const start = await c.post('/api/connections/oauth/microsoft/start', { consent: true, consentVersion: 'email-discovery-v1' });
+    const auth = new URL(start.body.authorizationUrl);
+    expect(auth.searchParams.get('scope')).toBe('offline_access User.Read Mail.ReadBasic');
+    const cb = await c.get(`/api/connections/oauth/microsoft/callback?state=${auth.searchParams.get('state')}&code=ms-code`);
+    expect(cb.headers.location).toContain('connected=microsoft');
+    await settle(ctx);
+    const scan = (await pool().query('SELECT status, messages_examined FROM scans')).rows[0];
+    expect(scan).toEqual({ status: 'completed', messages_examined: 2 });
+    const conn = (await pool().query('SELECT id, email_address FROM email_connections')).rows[0];
+    expect(conn.email_address).toBe('someone@outlook.com');
+    const accts = (await c.get('/api/accounts')).body.accounts.map((a: { service_domain: string }) => a.service_domain).sort();
+    expect(accts).toEqual(['github.com', 'spotify.com']);
+    const del = await c.delete(`/api/connections/${conn.id}`);
+    expect(del.body.revocation).toBe('not_supported');
+    expect(del.body.note).toMatch(/consent\/Manage/);
+  });
+});
