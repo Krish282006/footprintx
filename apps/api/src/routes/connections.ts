@@ -23,7 +23,7 @@ export const CONSENT_TEXT = {
   why: 'To find evidence of online accounts (for example welcome, verification, receipt and security emails) so you can see and secure your accounts.',
   stored: 'Only the conclusion: the service domain, the type of evidence, its date, and a one-way hash of the message ID for de-duplication. Subject lines and message content are not stored. Access tokens are encrypted at rest.',
   limits: 'Up to the most recent N messages per scan. Discovery can miss accounts and can mistake newsletters for accounts; you can correct results.',
-  disconnect: 'Disconnect at any time from Settings → Connected mailboxes. FootprintX revokes the token where the provider supports it and deletes the evidence gathered from that mailbox.',
+  disconnect: 'Disconnect at any time from the Connected mailboxes page. FootprintX revokes the token where the provider supports it and deletes the evidence gathered from that mailbox.',
   notEmailNotifications: 'Connecting a mailbox does not sign you up for email notifications; those are a separate choice.',
 } as const;
 

@@ -18,7 +18,8 @@
     "threat:sync:prod": "node dist/threat/sync-cli.js",
     "links:verify": "tsx --env-file-if-exists=.env src/catalog/verify-links-cli.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "dev:e2e": "tsx src/index.ts"
   },
   "dependencies": {
     "argon2": "^0.45.1",
