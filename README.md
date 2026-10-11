@@ -1,5 +1,6 @@
 # FootprintX
 
+
 **Secure Your Digital Past. Protect Your Online Future.**
 
 FootprintX finds online accounts from email evidence you explicitly authorise, checks those services against public breach data, scores your exposure with an explainable **Digital Attack Surface Index (DASI)**, prioritises remediation with links to each service's own security pages, and tracks your progress. Premium adds a browser extension that warns about known-malicious and suspicious sites.
